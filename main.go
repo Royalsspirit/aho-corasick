@@ -33,7 +33,10 @@ type Node struct {
 
 // buildTrie build a trie from word received
 func (t *Node) buildTrie(word []string) {
-
+	/*
+	   for each letter of dictionnary word, create a node if it does not exist
+	   if so, add a child from the existing node
+	*/
 	for i := 0; i < len(word); i++ {
 		wordLength := len(word[i])
 		currentNode := t
@@ -44,12 +47,18 @@ func (t *Node) buildTrie(word []string) {
 			}
 			currentNode = currentNode.child[charIndex]
 		}
+		/*
+			update pattern_id at the end of word in trie with index of word
+		*/
 		currentNode.pattern_id = i
 	}
 }
 func buildSuffix(root *Node) {
 	root.suffix = root
 	var queue []*Node
+	/*
+		link to root each direct child of root
+	*/
 	for i := 0; i < len(root.child); i++ {
 		if root.child[i] != nil {
 			root.child[i].suffix = root
@@ -64,9 +73,16 @@ func buildSuffix(root *Node) {
 				letter := currentNode.child[i].letter
 				temp := currentNode.suffix
 				index := []rune(letter)[0] - 'a'
+				/*
+					if char is not found in current node, try to start over from suffix
+					until it's found out
+				*/
 				for temp.child[index] == nil && temp != root {
 					temp = temp.suffix
 				}
+				/*
+				  if root is reached, add suffix to root
+				*/
 				if temp.child[index] != nil {
 					currentNode.child[i].suffix = temp.child[index]
 				} else {
@@ -76,6 +92,9 @@ func buildSuffix(root *Node) {
 			}
 
 		}
+		/*
+		 if word is found (pattern_id > 0), add output to current suffix
+		*/
 		if currentNode.suffix.pattern_id >= 0 {
 			currentNode.output = currentNode.suffix
 		} else {
